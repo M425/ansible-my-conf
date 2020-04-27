@@ -1,0 +1,40 @@
+---
+  - name: "Configure local machine"
+    hosts: all
+    connection: local
+    vars_files:
+      - vault/ssh_keys.yml
+    tasks:
+      - name: facts -------- tasks
+        include_tasks: tasks/facts.yml
+        tags: always
+
+      - name: chrome -------- tasks
+        include_tasks: tasks/chrome.yml
+        when: not cmd_check['chrome'].exists
+        tags: chrome, packages
+
+      - name: package -------- tasks
+        include_tasks: tasks/package.yml
+        tags: packages
+
+      - name: snap -------- tasks
+        include_tasks: tasks/snap.yml
+        tags: snap, packages
+
+      - name: dropbox -------- tasks
+        include_tasks: tasks/dropbox.yml
+        when: not cmd_check['dropbox'].exists
+        tags: packages
+
+      - name: dotfiles -------- tasks
+        include_tasks: tasks/dotfiles.yml
+        tags: dotfiles
+
+      - name: offsite -------- tasks
+        include_tasks: tasks/offsite.yml
+        tags: offsite, packages
+
+      - name: Done!
+        shell: "notify-send \"Ansible finished\""
+        changed_when: false

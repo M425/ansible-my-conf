@@ -1,0 +1,25 @@
+---
+  - name: dropbox - download
+    unarchive:
+      src: "{{ app_dropbox.url_package }}"
+      dest: "{{ ansible_env.HOME }}"
+      remote_src: yes
+
+  - name: dropbox - add link
+    file:
+      src: "{{ ansible_env.HOME }}/.dropbox-dist/dropboxd"
+      dest: "{{ ansible_env.HOME }}/.local/bin/dropboxd"
+      state: link
+
+  - name: dropbox - add systemd unit file
+    become: yes
+    template:
+      src: templates/dropbox_systemd.j2
+      dest: /etc/systemd/system/dropbox.service
+
+  - name: dropbox - create service
+    become: yes
+    service:
+      name: dropbox
+      state: started
+      enabled: yes

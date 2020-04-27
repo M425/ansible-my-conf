@@ -1,0 +1,4 @@
+---
+  - name: offsite - what to do next
+    shell: "notify-send \"{{item.value.msg}}\""
+    loop: "{{ cmd_check | dict2items | rejectattr('value.exists', 'equalto', true ) | rejectattr('value.offsite', 'undefined') | list }}"

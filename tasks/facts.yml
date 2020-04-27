@@ -1,0 +1,24 @@
+---
+  - name: facts - check username
+    assert:
+      that:
+        - username == ansible_env.USER
+      quiet: yes
+      fail_msg: "you need to launch the playbook with username specified in vars: {{username}}"
+      success_msg: "Ok, correct user {{username}}"
+
+  - name: facts - check other apps installed
+    shell: "command -v {{ item.value.cmd }} >/dev/null 2>&1"
+    register: exist_app
+    ignore_errors: yes
+    changed_when: no
+    loop: "{{ cmd_check | dict2items }}"
+    loop_control:
+      label: "{{ item.key }}"
+
+  - name: facts - set result
+    set_fact:
+      cmd_check: "{{ cmd_check | default({}) | combine({item.item.key: item.item.value | combine({'exists': item.rc == 0 | bool})}) }}"
+    loop: "{{ exist_app.results }}"
+    loop_control:
+      label: "{{ item.item.key }}"

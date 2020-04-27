@@ -1,0 +1,52 @@
+---
+  - name: package - update and upgrade - apt only
+    become: yes
+    apt:
+      upgrade: "yes"
+      update_cache: "yes"
+      cache_valid_time: 86400
+    when: ansible_pkg_mgr == 'apt'
+
+  - name: package - upgrade all packages - yum only
+    yum:
+      name: '*'
+      state: latest
+    when: ansible_pkg_mgr == 'yum'
+
+
+  - name: package - Install packages
+    become: yes
+    package:
+      state: latest
+      name: "{{ item.package }}"
+    loop: "{{ package_packages }}"
+    loop_control:
+      label: "{{ item.package }}"
+
+#  - name: package - install nvm
+#    shell: >
+#      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+#    args:
+#      creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+
+#   - name: package - install n
+#     shell: >
+#       curl -L https://git.io/n-install | bash
+
+#   - name: package - install node {{ node_version }}
+#     shell: >
+#       nvm install {{ node_version }}
+
+  - name: package - install n
+    become: yes
+    get_url:
+      url: https://raw.githubusercontent.com/tj/n/master/bin/n
+      dest: /usr/local/bin/n
+      mode: '0755'
+  
+  - name: package - install node
+    become: yes
+    shell: >
+      n lts
+    register: outn
+    changed_when: '"installing" in outn.stdout'

@@ -1,0 +1,10 @@
+---
+  - name: snap - Install packages from snap
+    become: yes
+    snap:
+      state: present
+      name: "{{ item.package }}"
+      classic: "{{ item.classic }}"
+    loop: "{{ snap_packages }}"
+    loop_control:
+      label: "{{ item.name }}"

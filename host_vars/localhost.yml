@@ -1,0 +1,58 @@
+---
+username: mat
+usergroup: mat
+
+cmd_check:
+  chrome:
+    cmd: google-chrome-stable
+  firefox:
+    cmd: firefox
+  wps:
+    cmd: wps
+    offsite: yes
+    msg: install wps from https://linux.wps.com
+  ferdi:
+    cmd: ferdi
+    offsite: yes
+    msg: install ferdi from https://getferdi.com/download/
+  dropbox:
+    cmd: dropboxd
+  node:
+    cmd: node
+  npm:
+    cmd: npm
+
+snap_packages:
+  - name: Spotify
+    package: spotify
+    classic: no
+  - name: Visual Studio Code
+    package: code
+    classic: no 
+  - name: Golang
+    package: go
+    classic: yes
+
+package_packages:
+  - package: vim
+  - package: curl
+  - package: build-essential
+  - package: python-dev
+  - package: python3-dev
+  - package: cmake
+  - package: git
+  - package: tmux
+  - package: htop
+  - package: net-tools
+  - package: nmap
+  - package: xclip
+  - package: google-chrome-stable
+  - package: fonts-powerline
+
+app_chrome:
+  apt_repo: /etc/apt/sources.list.d/google-chrome.list
+
+app_dropbox:
+  url_package: "https://www.dropbox.com/download?plat=lnx.x86_64"
+
+node_version: 12

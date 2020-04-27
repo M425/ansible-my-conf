@@ -1,0 +1,13 @@
+[Unit]
+Description=Dropbox service
+After=multi-user.target
+
+[Service]
+Type=simple
+User={{username}}
+Group={{usergroup}}
+PIDFile=/var/run/dropbox.pid
+ExecStart=/home/{{username}}/.local/bin/dropboxd
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,117 @@
+---
+  - name: dotfiles - bashrc - add import
+    blockinfile:
+      path: "{{ ansible_env.HOME }}/.bashrc"
+      marker: "## {mark} ANSIBLE MANAGED BLOCK ##"
+      block: |
+        for f in $HOME/.bashrc.d/*; do
+            . $f
+        done
+
+  - name: dotfiles - bashrc - add bashrc.d content
+    file:
+      src: "{{ playbook_dir }}/dotfiles/bash"
+      dest: "{{ ansible_env.HOME }}/.bashrc.d"
+      state: link
+
+  - name: dotfiles - bashrc - add bin content
+    file:
+      src: "{{ playbook_dir }}/bin"
+      dest: "{{ ansible_env.HOME }}/bin"
+      state: link
+
+  - name: dotfiles - git - add .gitconfig file
+    file:
+      src: "{{ playbook_dir }}/dotfiles/git/.gitconfig"
+      dest: "{{ ansible_env.HOME }}/.gitconfig"
+      state: link
+
+  - name: dotfiles - ssh - add .ssh folder
+    file:
+      path: "{{ ansible_env.HOME }}/.ssh"
+      mode: 0700
+      state: directory
+
+  - name: dotfiles - ssh - add ssk keys - private key
+    copy:
+      content: "{{ item.pri }}"
+      dest: "{{ ansible_env.HOME }}/.ssh/{{ item.name }}"
+      mode: 0600
+    loop: "{{ my_ssh_keys }}"
+    loop_control:
+      label: "{{ item.name }}"
+
+  - name: dotfiles - ssh - add ssh keys - public key
+    copy:
+      content: "{{ item.pub }}"
+      dest: "{{ ansible_env.HOME }}/.ssh/{{ item.name }}.pub"
+      mode: 0644
+    loop: "{{ my_ssh_keys }}"
+    loop_control:
+      label: "{{ item.name }}"
+
+  - name: dotfiles - ssh - add config file
+    file:
+      path: "{{ ansible_env.HOME }}/.ssh/config"
+      mode: 0644
+      state: touch
+      modification_time: preserve
+      access_time: preserve
+
+  - name: dotfiles - ssh - add configuration in config
+    blockinfile:
+      path: "{{ ansible_env.HOME }}/.ssh/config"
+      marker: "## {mark} ANSIBLE MANAGED BLOCK ##"
+      block: |
+        Host bitbucket.org
+         IdentityFile ~/.ssh/id_rsa
+
+        Host github.com
+         IdentityFile ~/.ssh/id_rsa
+
+  - name: dotfiles - tmux - add .tmux.conf file
+    file:
+      src: "{{ playbook_dir }}/dotfiles/tmux/.tmux.conf"
+      dest: "{{ ansible_env.HOME }}/.tmux.conf"
+      state: link
+
+  - name: dotfiles - tmux - install tpm
+    git:
+      repo: https://github.com/tmux-plugins/tpm
+      dest: "{{ ansible_env.HOME }}/.tmux/plugins/tpm"
+
+  - name: dotfiles - vim - create folders
+    file:
+      path: "{{ ansible_env.HOME }}/.vim"
+      mode: 0755
+      state: directory
+
+  - name: dotfiles - vim - create folders
+    file:
+      path: "{{ ansible_env.HOME }}/.vim/bundle"
+      mode: 0755
+      state: directory
+
+  - name: dotfiles - vim - install Vundle
+    git:
+      repo: https://github.com/VundleVim/Vundle.vim.git
+      dest: "{{ ansible_env.HOME }}/.vim/bundle/Vundle.vim"
+
+  - name: dotfiles - vim - add .vimrc file
+    file:
+      src: "{{ playbook_dir }}/dotfiles/vim/.vimrc"
+      dest: "{{ ansible_env.HOME }}/.vimrc"
+      state: link
+
+  - name: dotfiles - vim - install plugins
+    shell: vim +PluginInstall +qall
+    changed_when: no
+    tags: aux
+
+  - name: dotfiles - vim - recompile YCM plugin
+    shell: 
+      chdir: "{{ ansible_env.HOME }}/.vim/bundle/YouCompleteMe"
+      cmd: "./install.py --clangd-completer --all"
+    changed_when: no
+    tags: aux
+  
